@@ -158,3 +158,39 @@ test('AT-09: filtra tarefas por status', async ({ page }) => {
   await page.getByTestId('filter-status').selectOption('');
   await expect(page.getByTestId('task-title')).toHaveText(['Tarefa A', 'Tarefa B', 'Tarefa C']);
 });
+
+// ---------- AT-10 (TC-17): persistência ----------
+test('AT-10: mantém os dados após recarregar a página', async ({ page }) => {
+  // Recarregamos após CADA ação para provar que cada uma persiste sozinha.
+  // (Se várias ações viessem antes do reload, uma gravação poderia "esconder"
+  // outra que não gravou.)
+
+  // 1) Cadastro
+  await addTask(page, { title: 'Tarefa persistente', description: 'Deve sobreviver ao F5' });
+  await page.reload();
+  const item = taskByTitle(page, 'Tarefa persistente');
+  await expect(item).toHaveCount(1);
+  await expect(item.getByTestId('task-description')).toHaveText('Deve sobreviver ao F5');
+  await expect(item.getByTestId('task-status')).toHaveText('A fazer');
+
+  // 2) Mudança de status
+  await item.getByTestId('task-status-change').selectOption('done');
+  await page.reload();
+  await expect(item.getByTestId('task-status')).toHaveText('Concluída');
+
+  // 3) Edição
+  await item.getByTestId('edit-button').click();
+  await page.getByTestId('task-title-input').fill('Tarefa persistente editada');
+  await page.getByTestId('save-button').click();
+  await page.reload();
+  const edited = taskByTitle(page, 'Tarefa persistente editada');
+  await expect(edited).toHaveCount(1);
+  await expect(edited.getByTestId('task-status')).toHaveText('Concluída');
+
+  // 4) Exclusão
+  page.once('dialog', (dialog) => dialog.accept());
+  await edited.getByTestId('delete-button').click();
+  await page.reload();
+  await expect(page.getByTestId('task-item')).toHaveCount(0);
+  await expect(page.getByTestId('empty-message')).toHaveText('Nenhuma tarefa cadastrada.');
+});
