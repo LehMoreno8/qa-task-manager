@@ -111,6 +111,9 @@ function createTaskElement(task) {
     const actions = document.createElement('div');
   actions.className = 'task-actions';
 
+   actions.appendChild(createButton('Excluir', 'danger', 'delete-button',
+    'Excluir tarefa ' + task.title, function () { deleteTask(task.id); }));
+
   actions.appendChild(createButton('Editar', 'secondary', 'edit-button',
     'Editar tarefa ' + task.title, function () { startEdit(task.id); }));
 
@@ -171,6 +174,20 @@ function updateTask(id, title, description, status) {
   task.description = description;
   task.status = status;
   saveTasks();
+}
+
+function deleteTask(id) {
+  const task = tasks.find(function (t) { return t.id === id; });
+  if (!task) return;
+  const confirmed = window.confirm('Excluir a tarefa "' + task.title + '"?');
+  if (!confirmed) return;
+
+  tasks = tasks.filter(function (t) { return t.id !== id; });
+  saveTasks();
+  if (editingId === id) {
+    resetForm();
+  }
+  render();
 }
 
 function startEdit(id) { 
