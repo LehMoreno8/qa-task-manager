@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Gerenciador de Tarefas</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main>
+    <h1>Gerenciador de Tarefas</h1>
+
+    <!-- Formulário usado tanto para cadastrar quanto para editar -->
+    <form id="task-form" data-testid="task-form" novalidate>
+      <h2 id="form-title" data-testid="form-title">Nova tarefa</h2>
+
+      <label for="task-title">Título *</label>
+      <input id="task-title" data-testid="task-title-input" type="text" autocomplete="off">
+
+      <label for="task-description">Descrição</label>
+      <textarea id="task-description" data-testid="task-description-input" rows="3"></textarea>
+
+      <label for="task-status">Status</label>
+      <select id="task-status" data-testid="task-status-select">
+        <option value="todo">A fazer</option>
+        <option value="doing">Em andamento</option>
+        <option value="done">Concluída</option>
+      </select>
+
+      <p id="form-error" data-testid="form-error" role="alert" hidden></p>
+
+      <div class="form-actions">
+        <button type="submit" id="save-button" data-testid="save-button">Adicionar tarefa</button>
+        <button type="button" id="cancel-edit-button" data-testid="cancel-edit-button" hidden>Cancelar edição</button>
+      </div>
+    </form>
+
+    <section>
+      <h2>Tarefas</h2>
+
+      <div class="filters">
+        <div>
+          <label for="filter-status">Filtrar por status</label>
+          <select id="filter-status" data-testid="filter-status">
+            <option value="">Todas</option>
+            <option value="todo">A fazer</option>
+            <option value="doing">Em andamento</option>
+            <option value="done">Concluída</option>
+          </select>
+        </div>
+        <div>
+          <label for="filter-search">Buscar por título</label>
+          <input id="filter-search" data-testid="filter-search" type="text" autocomplete="off">
+        </div>
+      </div>
+
+      <p id="task-count" data-testid="task-count"></p>
+      <p id="empty-message" data-testid="empty-message" hidden></p>
+      <ul id="task-list" data-testid="task-list"></ul>
+    </section>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
