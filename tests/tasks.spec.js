@@ -140,3 +140,21 @@ test('AT-08: altera o status de uma tarefa pela lista', async ({ page }) => {
   await expect(item.getByTestId('task-title')).toHaveText('Escrever testes');
   await expect(item.getByTestId('task-description')).toHaveText('Parte 1');
 });
+
+// ---------- AT-09 (TC-14): filtro por status ----------
+test('AT-09: filtra tarefas por status', async ({ page }) => {
+  await addTask(page, { title: 'Tarefa A', status: 'todo' });
+  await addTask(page, { title: 'Tarefa B', status: 'doing' });
+  await addTask(page, { title: 'Tarefa C', status: 'done' });
+  await expect(page.getByTestId('task-item')).toHaveCount(3);
+
+  await page.getByTestId('filter-status').selectOption('doing');
+  await expect(page.getByTestId('task-title')).toHaveText(['Tarefa B']);
+  await expect(page.getByTestId('task-count')).toHaveText('Exibindo 1 de 3 tarefa(s)');
+
+  await page.getByTestId('filter-status').selectOption('done');
+  await expect(page.getByTestId('task-title')).toHaveText(['Tarefa C']);
+
+  await page.getByTestId('filter-status').selectOption('');
+  await expect(page.getByTestId('task-title')).toHaveText(['Tarefa A', 'Tarefa B', 'Tarefa C']);
+});
