@@ -98,3 +98,31 @@ test('AT-05: edita título e descrição de uma tarefa', async ({ page }) => {
   await expect(taskByTitle(page, 'Estudar SQL')).toHaveCount(0);
   await expect(page.getByTestId('form-title')).toHaveText('Nova tarefa');
 });
+
+// ---------- AT-06 (TC-11): exclusão confirmada ----------
+test('AT-06: exclui uma tarefa ao confirmar o diálogo', async ({ page }) => {
+  await addTask(page, { title: 'Tarefa para excluir' });
+
+  // O diálogo precisa ser tratado ANTES do clique que o abre.
+  let dialogMessage = '';
+  page.once('dialog', async (dialog) => {
+    dialogMessage = dialog.message();
+    await dialog.accept();
+  });
+  await taskByTitle(page, 'Tarefa para excluir').getByTestId('delete-button').click();
+
+  expect(dialogMessage).toBe('Excluir a tarefa "Tarefa para excluir"?');
+  await expect(page.getByTestId('task-item')).toHaveCount(0);
+  await expect(page.getByTestId('empty-message')).toHaveText('Nenhuma tarefa cadastrada.');
+});
+
+// ---------- AT-07 (TC-12): exclusão cancelada ----------
+test('AT-07: mantém a tarefa ao cancelar a exclusão', async ({ page }) => {
+  await addTask(page, { title: 'Tarefa para manter' });
+
+  page.once('dialog', (dialog) => dialog.dismiss());
+  await taskByTitle(page, 'Tarefa para manter').getByTestId('delete-button').click();
+
+  await expect(taskByTitle(page, 'Tarefa para manter')).toHaveCount(1);
+  await expect(page.getByTestId('task-count')).toHaveText('Exibindo 1 de 1 tarefa(s)');
+});
