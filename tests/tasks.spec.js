@@ -49,3 +49,52 @@ test('AT-01: cadastra uma tarefa válida', async ({ page }) => {
   await expect(page.getByTestId('task-title-input')).toHaveValue('');
   await expect(page.getByTestId('task-status-select')).toHaveValue('todo');
 });
+
+// ---------- AT-02 (TC-04): título vazio ----------
+test('AT-02: não cadastra tarefa com título vazio', async ({ page }) => {
+  await page.getByTestId('save-button').click();
+
+  await expect(page.getByTestId('form-error')).toHaveText('O título é obrigatório.');
+  await expect(page.getByTestId('task-item')).toHaveCount(0);
+  await expect(page.getByTestId('empty-message')).toHaveText('Nenhuma tarefa cadastrada.');
+});
+
+// ---------- AT-03 (TC-05): título só com espaços ----------
+test('AT-03: não cadastra tarefa com título só de espaços', async ({ page }) => {
+  await addTask(page, { title: '     ' });
+
+  await expect(page.getByTestId('form-error')).toHaveText('O título é obrigatório.');
+  await expect(page.getByTestId('task-item')).toHaveCount(0);
+});
+
+// ---------- AT-04 (TC-06): valor-limite inválido ----------
+test('AT-04: rejeita título com 101 caracteres', async ({ page }) => {
+  await addTask(page, { title: 'A'.repeat(101) });
+
+  await expect(page.getByTestId('form-error')).toHaveText(
+    'O título deve ter no máximo 100 caracteres.'
+  );
+  await expect(page.getByTestId('task-item')).toHaveCount(0);
+})
+// ---------- AT-05 (TC-08): edição ----------
+test('AT-05: edita título e descrição de uma tarefa', async ({ page }) => {
+  await addTask(page, { title: 'Estudar SQL', description: 'Capítulo 1' });
+
+  await taskByTitle(page, 'Estudar SQL').getByTestId('edit-button').click();
+
+  // O formulário deve entrar em modo de edição com os dados atuais.
+  await expect(page.getByTestId('form-title')).toHaveText('Editar tarefa');
+  await expect(page.getByTestId('task-title-input')).toHaveValue('Estudar SQL');
+  await expect(page.getByTestId('task-description-input')).toHaveValue('Capítulo 1');
+
+  await page.getByTestId('task-title-input').fill('Estudar SQL avançado');
+  await page.getByTestId('task-description-input').fill('Capítulo 2');
+  await page.getByTestId('save-button').click();
+
+  // Continua havendo uma única tarefa (editou, não duplicou).
+  await expect(page.getByTestId('task-item')).toHaveCount(1);
+  const item = taskByTitle(page, 'Estudar SQL avançado');
+  await expect(item.getByTestId('task-description')).toHaveText('Capítulo 2');
+  await expect(taskByTitle(page, 'Estudar SQL')).toHaveCount(0);
+  await expect(page.getByTestId('form-title')).toHaveText('Nova tarefa');
+});
