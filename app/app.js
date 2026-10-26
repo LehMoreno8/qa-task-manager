@@ -10,13 +10,17 @@ const STATUS_LABELS = {
 
 // ---------- Estado ----------
 let tasks = loadTasks();
+let editingId = null; // id da tarefa em edição (null = modo cadastro)
 
 // ---------- Elementos da página ----------
 const form = document.getElementById('task-form');
+const formTitle = document.getElementById('form-title');
 const titleInput = document.getElementById('task-title');
 const descriptionInput = document.getElementById('task-description');
 const statusSelect = document.getElementById('task-status');
 const formError = document.getElementById('form-error');
+const saveButton = document.getElementById('save-button');
+const cancelEditButton = document.getElementById('cancel-edit-button');
 const taskCount = document.getElementById('task-count');
 const emptyMessage = document.getElementById('empty-message');
 const taskList = document.getElementById('task-list');
@@ -92,6 +96,14 @@ function createTaskElement(task) {
   badge.textContent = STATUS_LABELS[task.status];
   item.appendChild(badge);
 
+    const actions = document.createElement('div');
+  actions.className = 'task-actions';
+
+  actions.appendChild(createButton('Editar', 'secondary', 'edit-button',
+    'Editar tarefa ' + task.title, function () { startEdit(task.id); }));
+
+  item.appendChild(actions);
+
   return item;
 }
 
@@ -130,8 +142,56 @@ form.addEventListener('submit', function (event) {
     return;
   }
 
-  createTask(title, description, status);
-  form.reset();
-  clearError();
+    if (editingId) {
+    updateTask(editingId, title, description, status);
+  } else {
+    createTask(title, description, status);
+  }
+
+  resetForm();
+  cancelEditButton.addEventListener('click', resetForm);
   render();
 });
+
+function updateTask(id, title, description, status) {
+  const task = tasks.find(function (t) { return t.id === id; });
+  if (!task) return;
+  task.title = title;
+  task.description = description;
+  task.status = status;
+  saveTasks();
+}
+
+function startEdit(id) { 
+
+  function createButton(text, className, testId, ariaLabel, onClick) {
+  const button = document.createElement('button');
+  button.type = 'button';
+  button.textContent = text;
+  if (className) button.className = className;
+  button.setAttribute('data-testid', testId);
+  button.setAttribute('aria-label', ariaLabel);
+  button.addEventListener('click', onClick);
+  return button;
+}
+  const task = tasks.find(function (t) { return t.id === id; });
+  if (!task) return;
+  editingId = id;
+  titleInput.value = task.title;
+  descriptionInput.value = task.description;
+  statusSelect.value = task.status;
+  formTitle.textContent = 'Editar tarefa';
+  saveButton.textContent = 'Salvar alterações';
+  cancelEditButton.hidden = false;
+  clearError();
+  titleInput.focus();
+}
+
+function resetForm() {
+  editingId = null;
+  form.reset();
+  formTitle.textContent = 'Nova tarefa';
+  saveButton.textContent = 'Adicionar tarefa';
+  cancelEditButton.hidden = true;
+  clearError();
+}
