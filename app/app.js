@@ -72,6 +72,18 @@ function createTask(title, description, status) {
 }
 
 // ---------- Renderização ----------
+
+  function createButton(text, className, testId, ariaLabel, onClick) {
+  const button = document.createElement('button');
+  button.type = 'button';
+  button.textContent = text;
+  if (className) button.className = className;
+  button.setAttribute('data-testid', testId);
+  button.setAttribute('aria-label', ariaLabel);
+  button.addEventListener('click', onClick);
+  return button;
+}
+
 function createTaskElement(task) {
   const item = document.createElement('li');
   item.className = 'task-item';
@@ -149,8 +161,7 @@ form.addEventListener('submit', function (event) {
   }
 
   resetForm();
-  cancelEditButton.addEventListener('click', resetForm);
-  render();
+   render();
 });
 
 function updateTask(id, title, description, status) {
@@ -163,17 +174,6 @@ function updateTask(id, title, description, status) {
 }
 
 function startEdit(id) { 
-
-  function createButton(text, className, testId, ariaLabel, onClick) {
-  const button = document.createElement('button');
-  button.type = 'button';
-  button.textContent = text;
-  if (className) button.className = className;
-  button.setAttribute('data-testid', testId);
-  button.setAttribute('aria-label', ariaLabel);
-  button.addEventListener('click', onClick);
-  return button;
-}
   const task = tasks.find(function (t) { return t.id === id; });
   if (!task) return;
   editingId = id;
@@ -195,3 +195,7 @@ function resetForm() {
   cancelEditButton.hidden = true;
   clearError();
 }
+
+cancelEditButton.addEventListener('click', resetForm);
+
+render();
