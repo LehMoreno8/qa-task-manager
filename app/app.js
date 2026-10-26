@@ -21,6 +21,8 @@ const statusSelect = document.getElementById('task-status');
 const formError = document.getElementById('form-error');
 const saveButton = document.getElementById('save-button');
 const cancelEditButton = document.getElementById('cancel-edit-button');
+const filterStatus = document.getElementById('filter-status');
+const filterSearch = document.getElementById('filter-search');
 const taskCount = document.getElementById('task-count');
 const emptyMessage = document.getElementById('empty-message');
 const taskList = document.getElementById('task-list');
@@ -69,6 +71,18 @@ function createTask(title, description, status) {
     status: status,
   });
   saveTasks();
+}
+
+// ---------- Filtros ----------
+function getVisibleTasks() {
+  const statusValue = filterStatus.value;
+  const searchValue = filterSearch.value.trim().toLowerCase();
+
+  return tasks.filter(function (task) {
+    const matchesStatus = statusValue === '' || task.status === statusValue;
+    const matchesSearch = task.title.toLowerCase().includes(searchValue);
+    return matchesStatus && matchesSearch;
+  });
 }
 
 // ---------- Renderização ----------
@@ -138,7 +152,7 @@ function createTaskElement(task) {
 }
 
 function render() {
-  const visible = tasks;
+  const visible = getVisibleTasks();
 
   taskList.innerHTML = '';
   visible.forEach(function (task) {
@@ -237,5 +251,7 @@ function resetForm() {
 }
 
 cancelEditButton.addEventListener('click', resetForm);
+filterStatus.addEventListener('change', render);
+filterSearch.addEventListener('input', render);
 
 render();
