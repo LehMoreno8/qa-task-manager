@@ -1,6 +1,7 @@
 // Gerenciador de Tarefas - JavaScript puro, dados salvos no localStorage.
 
 const STORAGE_KEY = 'tasks';
+const TITLE_MAX_LENGTH = 100;
 const STATUS_LABELS = {
   todo: 'A fazer',
   doing: 'Em andamento',
@@ -15,6 +16,7 @@ const form = document.getElementById('task-form');
 const titleInput = document.getElementById('task-title');
 const descriptionInput = document.getElementById('task-description');
 const statusSelect = document.getElementById('task-status');
+const formError = document.getElementById('form-error');
 const taskCount = document.getElementById('task-count');
 const emptyMessage = document.getElementById('empty-message');
 const taskList = document.getElementById('task-list');
@@ -31,6 +33,27 @@ function loadTasks() {
 
 function saveTasks() {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
+}
+
+// ---------- Validação ----------
+function validateTitle(title) {
+  if (title === '') {
+    return 'O título é obrigatório.';
+  }
+  if (title.length > TITLE_MAX_LENGTH) {
+    return 'O título deve ter no máximo ' + TITLE_MAX_LENGTH + ' caracteres.';
+  }
+  return '';
+}
+
+function showError(message) {
+  formError.textContent = message;
+  formError.hidden = false;
+}
+
+function clearError() {
+  formError.textContent = '';
+  formError.hidden = true;
 }
 
 // ---------- Ações ----------
@@ -97,9 +120,18 @@ function render() {
 form.addEventListener('submit', function (event) {
   event.preventDefault();
 
-  createTask(titleInput.value, descriptionInput.value, statusSelect.value);
+  const title = titleInput.value.trim();
+  const description = descriptionInput.value.trim();
+  const status = statusSelect.value;
+
+  const error = validateTitle(title);
+  if (error) {
+    showError(error);
+    return;
+  }
+
+  createTask(title, description, status);
   form.reset();
+  clearError();
   render();
 });
-
-render();
