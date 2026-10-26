@@ -114,6 +114,21 @@ function createTaskElement(task) {
    actions.appendChild(createButton('Excluir', 'danger', 'delete-button',
     'Excluir tarefa ' + task.title, function () { deleteTask(task.id); }));
 
+    const select = document.createElement('select');
+  select.setAttribute('data-testid', 'task-status-change');
+  select.setAttribute('aria-label', 'Alterar status de ' + task.title);
+  Object.keys(STATUS_LABELS).forEach(function (value) {
+    const option = document.createElement('option');
+    option.value = value;
+    option.textContent = STATUS_LABELS[value];
+    option.selected = value === task.status;
+    select.appendChild(option);
+  });
+  select.addEventListener('change', function () {
+    changeStatus(task.id, select.value);
+  });
+  actions.appendChild(select);
+
   actions.appendChild(createButton('Editar', 'secondary', 'edit-button',
     'Editar tarefa ' + task.title, function () { startEdit(task.id); }));
 
@@ -174,6 +189,14 @@ function updateTask(id, title, description, status) {
   task.description = description;
   task.status = status;
   saveTasks();
+}
+
+function changeStatus(id, status) {
+  const task = tasks.find(function (t) { return t.id === id; });
+  if (!task) return;
+  task.status = status;
+  saveTasks();
+  render();
 }
 
 function deleteTask(id) {
