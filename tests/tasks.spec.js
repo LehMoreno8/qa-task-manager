@@ -126,3 +126,17 @@ test('AT-07: mantém a tarefa ao cancelar a exclusão', async ({ page }) => {
   await expect(taskByTitle(page, 'Tarefa para manter')).toHaveCount(1);
   await expect(page.getByTestId('task-count')).toHaveText('Exibindo 1 de 1 tarefa(s)');
 });
+
+// ---------- AT-08 (TC-13): mudança de status ----------
+test('AT-08: altera o status de uma tarefa pela lista', async ({ page }) => {
+  await addTask(page, { title: 'Escrever testes', description: 'Parte 1' });
+  const item = taskByTitle(page, 'Escrever testes');
+  await expect(item.getByTestId('task-status')).toHaveText('A fazer');
+
+  await item.getByTestId('task-status-change').selectOption('done');
+
+  await expect(item.getByTestId('task-status')).toHaveText('Concluída');
+  // Título e descrição não podem mudar.
+  await expect(item.getByTestId('task-title')).toHaveText('Escrever testes');
+  await expect(item.getByTestId('task-description')).toHaveText('Parte 1');
+});
