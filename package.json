@@ -1,0 +1,19 @@
+{
+  "name": "qa-task-manager",
+  "version": "1.0.0",
+  "description": "Projeto de portfólio de QA: aplicação web de tarefas com testes manuais e automatizados (Playwright).",
+  "main": "index.js",
+  "scripts": {
+  "serve": "http-server app -p 8080 -c-1",
+  "test": "playwright test",
+  "test:headed": "playwright test --headed",
+  "report": "playwright show-report"
+},
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@playwright/test": "^1.64.1",
+    "http-server": "^14.1.1"
+  }
+}
